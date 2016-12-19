@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Ex 1</title>
+    <title>Ex 2</title>
     <script src="https://d3js.org/d3.v3.js"></script>
     <style>
         body{
@@ -17,9 +17,29 @@
             font-size: 11px;
             fill: blue;
         }
+        #tooltip{
+            position: absolute;
+            background: #fff;
+            width: 150px;
+            height: auto;
+            padding: 0px 10px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+        }        
+        #tooltip.hidden{
+            display: none;
+        }
+        select{
+            position: absolute;
+            top: 10;
+        }
     </style>
 </head>
 <body>
+   <div id="tooltip" class="hidden">
+     <p><strong id="city">Hello</strong></p>
+     <p id="industry">tooltip</p>
+   </div>
     <script>
         // 1. 定義width, height, padding, letterList變數
         var w = 900;
@@ -36,7 +56,7 @@
            
            bind(dataSet);
            render(dataSet);
-           //btnList(dataSet);            
+           btnList(dataSet);            
         });
         
         
@@ -102,11 +122,11 @@
            var yAxis = d3.svg.axis()
                              .scale(yScale)
                              .orient("left")
-                             //.ticks(5); 
+                        //     .ticks(5); 
            //d3.select("svg").append("g")
            d3.select("g#axisY")
                            .attr("class","axis")
-                           .attr("transform","translate("+(padding-8)+",0)")
+                           .attr("transform","translate("+(padding-12)+",0)")
                            .call(yAxis);
             
            
@@ -129,7 +149,8 @@
                 fill: function(d){
                     return fScale(d.cid);
                 }
-              })
+              });              
+              
         }
         
         function btnList(dataSet){
@@ -140,20 +161,26 @@
             var filterIndustryArr = uniqueIndustryArr.filter(function(d){
                                                                 return d!="";
                                                             });
-            var selection = d3.select("body").append("div")
-                                             .selectAll("input")
+            var selection = d3.select("body").append("select")
+                                             .selectAll("option")
                                              .data(filterIndustryArr);
                              //.text(filterIndustryArr.join("/"));
-            selection.enter().append("input")
+            selection.enter().append("option")
                              .attr({
-                                type: "button",
                                 value: function(d){
                                          return d;
                                        }
                              })
-                             .on("click",function(d){
-                                           update(d);
-                                         });
+                             .text(function(d){
+                                return d;
+                             });            
+                             //.on("click",function(d){
+                             //               update(d);
+                             //             });
+            d3.select("select").on("change",function(){
+                                    var value = d3.select("select").property("value");
+                                    update(value);
+                                })
             selection.exit().remove();
             
             //為了要使用dataSet,必須寫在btnList function裡面
